@@ -33,12 +33,12 @@ pub async fn launch(settings: Settings, host: String, port: u16) -> Result<()> {
         let cert = PathBuf::from(settings.cert.as_str());
         let private_key = PathBuf::from(settings.priv_key.as_str());
         if !cert.exists() {
-            return Err(Report::new(
+            return Err(Report::msg(
                 format!("certificate {} not exist", settings.cert.as_str())));
         }
 
         if !private_key.exists() {
-            return Err(Report::new(
+            return Err(Report::msg(
                 format!("private key {} not exist", settings.priv_key.as_str())));
         }
 
