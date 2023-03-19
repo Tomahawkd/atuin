@@ -9,3 +9,8 @@
 
 ## URI for postgres (using development creds here)
 # db_uri="postgres://username:password@localhost/atuin"
+
+## Enable TLS encryption
+# use_tls = true
+# cert = "cert path"
+# priv_key = "private key path"

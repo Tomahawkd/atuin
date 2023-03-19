@@ -17,6 +17,9 @@ pub struct Settings {
     pub max_history_length: usize,
     pub register_webhook_url: Option<String>,
     pub register_webhook_username: String,
+    pub use_tls: bool,
+    pub cert: String,
+    pub priv_key: String,
 }
 
 impl Settings {
@@ -40,6 +43,9 @@ impl Settings {
             .set_default("max_history_length", 8192)?
             .set_default("path", "")?
             .set_default("register_webhook_username", "")?
+            .set_default("use_tls", false)?
+            .set_default("cert", "")?
+            .set_default("priv_key", "")?
             .add_source(
                 Environment::with_prefix("atuin")
                     .prefix_separator("_")
