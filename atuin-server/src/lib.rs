@@ -26,12 +26,12 @@ pub async fn launch(settings: Settings, host: String, port: u16) -> Result<()> {
         .await
         .wrap_err_with(|| format!("failed to connect to db: {}", settings.db_uri))?;
 
+    let cert = PathBuf::from(settings.cert.clone().as_str());
+    let private_key = PathBuf::from(settings.priv_key.clone().as_str());
     let r = router::router(postgres, settings);
 
     let addr = SocketAddr::new(host, port);
     if settings.use_tls {
-        let cert = PathBuf::from(settings.cert.as_str());
-        let private_key = PathBuf::from(settings.priv_key.as_str());
         if !cert.exists() {
             return Err(Report::msg(
                 format!("certificate {} not exist", settings.cert.as_str())));
