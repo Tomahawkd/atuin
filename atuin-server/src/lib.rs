@@ -1,10 +1,13 @@
 #![forbid(unsafe_code)]
 
 use std::net::{IpAddr, SocketAddr};
+use std::path::PathBuf;
+use axum::extract::Path;
 
 use axum::Server;
+use axum_server::tls_rustls::RustlsConfig;
 use database::Postgres;
-use eyre::{Context, Result};
+use eyre::{Context, Error, Result};
 
 use crate::settings::Settings;
 
@@ -25,9 +28,32 @@ pub async fn launch(settings: Settings, host: String, port: u16) -> Result<()> {
 
     let r = router::router(postgres, settings);
 
-    Server::bind(&SocketAddr::new(host, port))
-        .serve(r.into_make_service())
-        .await?;
+    let addr = SocketAddr::new(host, port);
+    if settings.use_tls {
+        let cert = PathBuf::from(settings.cert.as_str());
+        let private_key = PathBuf::from(settings.priv_key.as_str());
+        if !cert.exists() {
+            return Err(Error::new(
+                format!("certificate {} not exist", settings.cert.as_str())));
+        }
+
+        if !private_key.exists() {
+            return Err(Error::new(
+                format!("private key {} not exist", settings.priv_key.as_str())));
+        }
+
+        let config = RustlsConfig::from_pem_file(cert, private_key)
+            .await
+            .unwrap();
+
+        axum_server::bind_rustls(addr, config)
+            .serve(r.into_make_service())
+            .await?;
+    } else {
+        Server::bind(&addr)
+            .serve(r.into_make_service())
+            .await?;
+    }
 
     Ok(())
 }
