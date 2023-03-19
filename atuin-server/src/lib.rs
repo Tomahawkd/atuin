@@ -26,20 +26,22 @@ pub async fn launch(settings: Settings, host: String, port: u16) -> Result<()> {
         .await
         .wrap_err_with(|| format!("failed to connect to db: {}", settings.db_uri))?;
 
-    let cert = PathBuf::from(settings.cert.clone().as_str());
-    let private_key = PathBuf::from(settings.priv_key.clone().as_str());
+    let cert_path = settings.cert.clone();
+    let priv_key_path = settings.priv_key.clone();
     let r = router::router(postgres, settings);
 
     let addr = SocketAddr::new(host, port);
     if settings.use_tls {
+        let cert = PathBuf::from(cert_path.as_str());
+        let private_key = PathBuf::from(priv_key_path.as_str());
         if !cert.exists() {
             return Err(Report::msg(
-                format!("certificate {} not exist", settings.cert.as_str())));
+                format!("certificate {} not exist", cert_path.as_str())));
         }
 
         if !private_key.exists() {
             return Err(Report::msg(
-                format!("private key {} not exist", settings.priv_key.as_str())));
+                format!("private key {} not exist", priv_key_path.as_str())));
         }
 
         let config = RustlsConfig::from_pem_file(cert, private_key)
