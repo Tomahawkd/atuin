@@ -7,7 +7,7 @@ use axum::extract::Path;
 use axum::Server;
 use axum_server::tls_rustls::RustlsConfig;
 use database::Postgres;
-use eyre::{Context, Error, Result};
+use eyre::{Context, Error, Report, Result};
 
 use crate::settings::Settings;
 
@@ -33,12 +33,12 @@ pub async fn launch(settings: Settings, host: String, port: u16) -> Result<()> {
         let cert = PathBuf::from(settings.cert.as_str());
         let private_key = PathBuf::from(settings.priv_key.as_str());
         if !cert.exists() {
-            return Err(Error::new(
+            return Err(Report::new(
                 format!("certificate {} not exist", settings.cert.as_str())));
         }
 
         if !private_key.exists() {
-            return Err(Error::new(
+            return Err(Report::new(
                 format!("private key {} not exist", settings.priv_key.as_str())));
         }
 
