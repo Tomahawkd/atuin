@@ -28,10 +28,12 @@ pub async fn launch(settings: Settings, host: String, port: u16) -> Result<()> {
 
     let cert_path = settings.cert.clone();
     let priv_key_path = settings.priv_key.clone();
+    let enable_tls = settings.use_tls.clone();
+
     let r = router::router(postgres, settings);
 
     let addr = SocketAddr::new(host, port);
-    if settings.use_tls {
+    if enable_tls {
         let cert = PathBuf::from(cert_path.as_str());
         let private_key = PathBuf::from(priv_key_path.as_str());
         if !cert.exists() {
